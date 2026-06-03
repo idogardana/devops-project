@@ -10,7 +10,7 @@ def home():
 # GET /health — משמש את Kubernetes לבדיקת תקינות (Liveness Probe)
 @app.route('/health')
 def health():
-    return jsonify({"status": "healthy"}), 200
+    return jsonify({"status": "very healthy"}), 200
 
 if __name__ == '__main__':
     # host='0.0.0.0' קריטי להמשך כדי שהשרת יוכל לקבל בקשות מחוץ לקונטיינר של דוקר
