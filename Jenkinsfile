@@ -11,10 +11,10 @@ pipeline {
             }
         }
         stage('Test') {
-	    steps {
-		sh 'docker run --rm -v $(pwd)/app:/app -v $(pwd)/run_tests.sh:/run_tests.sh -w /app python:3.11-slim sh /run_tests.sh'
-	    }
-	}
+            steps {
+                sh 'docker run --rm -v $(pwd)/app:/app -v $(pwd)/run_tests.sh:/run_tests.sh -w /app python:3.11-slim sh /run_tests.sh'
+            }
+        }
         stage('Build Docker Image') {
             steps {
                 sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
@@ -43,6 +43,7 @@ pipeline {
                 )]) {
                     sh 'git config user.email "ci@jenkins"'
                     sh 'git config user.name "Jenkins"'
+                    sh 'git checkout main'
                     sh "sed -i \"s|image: idogardana/myapp:.*|image: idogardana/myapp:${IMAGE_TAG}|g\" k8s/deployment.yaml"
                     sh 'git add k8s/deployment.yaml'
                     sh "git commit -m \"ci: update image tag to ${IMAGE_TAG}\""
