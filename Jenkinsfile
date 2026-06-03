@@ -11,16 +11,10 @@ pipeline {
             }
         }
         stage('Test') {
-            steps {
-                sh '''
-                    docker run --rm
-                    -v $(pwd)/app:/app
-		    -w /app
-		    python:3.11-slim
-		    sh -c "pip install pytest flask --quiet && pytest test_app.py -v"
-                '''
-            }
-        }
+    steps {
+        sh 'docker run --rm -v $(pwd)/app:/app -w /app python:3.11-slim sh -c "pip install pytest flask --quiet && pytest test_app.py -v"'
+    }
+}
         stage('Build Docker Image') {
             steps {
                 sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
