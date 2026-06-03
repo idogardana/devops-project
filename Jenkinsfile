@@ -5,11 +5,8 @@ pipeline {
         IMAGE_TAG  = "${BUILD_NUMBER}"
     }
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
+        // שלב ה-Checkout האוטומטי קורה כאן לבד, אין צורך לכתוב אותו ידנית
+        
         stage('Test') {
             steps {
                 sh 'docker run --rm -v $(pwd)/app:/app -v $(pwd)/run_tests.sh:/run_tests.sh -w /app python:3.11-slim sh /run_tests.sh'
@@ -41,14 +38,27 @@ pipeline {
                     usernameVariable: 'GIT_USER',
                     passwordVariable: 'GIT_TOKEN'
                 )]) {
-                    sh 'git config user.email "ci@jenkins"'
-                    sh 'git config user.name "Jenkins"'
-                    sh 'git checkout main'
-                    sh "sed -i \"s|image: idogardana/myapp:.*|image: idogardana/myapp:${IMAGE_TAG}|g\" k8s/deployment.yaml"
-                    sh 'git add k8s/deployment.yaml'
-                    sh "git commit -m \"ci: update image tag to ${IMAGE_TAG}\" || echo 'Nothing to commit'"
-					sh "git push https://\${GIT_USER}:\${GIT_TOKEN}@github.com/idogardana/devops-project.git main || echo 'Nothing to push'"
-                    sh "git push https://\${GIT_USER}:\${GIT_TOKEN}@github.com/idogardana/devops-project.git main"
+                    sh """
+                        # הגדרת משתמש גיט
+                        git config user.email "ci@jenkins"
+                        git config user.name "Jenkins"
+                        
+                        # מעבר לבראנץ' ומשיכת השינויים הכי עדכניים מהשרת
+                        git checkout main
+                        git pull origin main
+                        
+                        # עדכון תגית הדוקר במניפסט
+                        sed -i "s|image: idogardana/myapp:.*|image: idogardana/myapp:${IMAGE_TAG}|g" k8s/deployment.yaml
+                        
+                        # בדיקה: האם הקובץ באמת השתנה? רק אם כן - נבצע קומיט ופוש
+                        if ! git diff --quiet k8s/deployment.yaml; then
+                            git add k8s/deployment.yaml
+                            git commit -m "ci: update image tag to ${IMAGE_TAG}"
+                            git push https://\${GIT_USER}:\${GIT_TOKEN}@github.com/idogardana/devops-project.git main
+                        else
+                            echo "No changes detected in deployment.yaml. Skipping push."
+                        fi
+                    """
                 }
             }
         }
