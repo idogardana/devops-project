@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        IMAGE_NAME = "your-dockerhub-username/myapp"
+        IMAGE_NAME = "idogardana/myapp"
         IMAGE_TAG  = "${BUILD_NUMBER}"
     }
     stages {
