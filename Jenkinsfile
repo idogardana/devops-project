@@ -46,7 +46,8 @@ pipeline {
                     sh 'git checkout main'
                     sh "sed -i \"s|image: idogardana/myapp:.*|image: idogardana/myapp:${IMAGE_TAG}|g\" k8s/deployment.yaml"
                     sh 'git add k8s/deployment.yaml'
-                    sh "git commit -m \"ci: update image tag to ${IMAGE_TAG}\""
+                    sh "git commit -m \"ci: update image tag to ${IMAGE_TAG}\" || echo 'Nothing to commit'"
+					sh "git push https://\${GIT_USER}:\${GIT_TOKEN}@github.com/idogardana/devops-project.git main || echo 'Nothing to push'"
                     sh "git push https://\${GIT_USER}:\${GIT_TOKEN}@github.com/idogardana/devops-project.git main"
                 }
             }
