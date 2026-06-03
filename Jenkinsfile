@@ -13,8 +13,11 @@ pipeline {
         stage('Test') {
             steps {
                 sh '''
-                    pip install pytest flask --break-system-packages
-                    pytest app/test_app.py -v
+                    docker run --rm
+                    -v $(pwd)/app:/app
+		    -w /app
+		    python:3.11-slim
+		    sh -c "pip install pytest flask --quiet && pytest test_app.py -v"
                 '''
             }
         }
