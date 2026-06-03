@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: flask-myapp
-        image: idogardana/myapp:16
+        image: idogardana/myapp:17
         ports:
         - containerPort: 5000
         imagePullPolicy: Always
